@@ -1,0 +1,8 @@
+{
+  "name": "inlinedb-api",
+  "version": "0.0.0",
+  "description": "InlineDB REST API",
+  "repository": "inlinedb/inlinedb-web",
+  "author": "Gopikrishna Sathyamurthy",
+  "license": "MIT"
+}
