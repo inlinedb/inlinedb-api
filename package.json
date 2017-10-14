@@ -10,10 +10,11 @@
   },
   "devDependencies": {
     "express": "4.16.2",
-    "inlinedb": "2.0.5"
+    "inlinedb": "2.0.5",
+    "nodemon": "1.12.1"
   },
   "scripts": {
-    "start:express": "node examples/express",
-    "start:node": "node examples/node"
+    "start:express": "nodemon examples/express --watch index.js --watch examples",
+    "start:node": "nodemon examples/node --watch index.js --watch examples"
   }
 }
