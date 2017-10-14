@@ -4,5 +4,16 @@
   "description": "InlineDB REST API",
   "repository": "inlinedb/inlinedb-web",
   "author": "Gopikrishna Sathyamurthy",
-  "license": "MIT"
+  "license": "MIT",
+  "peerDependencies": {
+    "inlinedb": "2.x"
+  },
+  "devDependencies": {
+    "express": "4.16.2",
+    "inlinedb": "2.0.5"
+  },
+  "scripts": {
+    "start:express": "node examples/express",
+    "start:node": "node examples/node"
+  }
 }
