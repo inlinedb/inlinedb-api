@@ -14,7 +14,7 @@
     "nodemon": "1.12.1"
   },
   "scripts": {
-    "start:express": "nodemon examples/express --watch index.js --watch examples",
-    "start:node": "nodemon examples/node --watch index.js --watch examples"
+    "start:express": "nodemon examples/express.js --watch index.js --watch examples",
+    "start:node": "nodemon examples/node.js --watch index.js --watch examples"
   }
 }
