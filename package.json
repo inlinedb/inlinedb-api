@@ -11,9 +11,11 @@
   "devDependencies": {
     "express": "4.16.2",
     "inlinedb": "2.0.5",
-    "nodemon": "1.12.1"
+    "nodemon": "1.12.1",
+    "rimraf": "2.6.2"
   },
   "scripts": {
+    "clean": "node examples/initialize",
     "start:express": "nodemon examples/express.js --watch index.js --watch examples",
     "start:node": "nodemon examples/node.js --watch index.js --watch examples"
   }
