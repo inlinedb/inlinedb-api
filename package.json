@@ -12,6 +12,8 @@
     "inlinedb": "2.x"
   },
   "devDependencies": {
+    "eslint": "4.9.0",
+    "eslint-config-inlinedb": "github:inlinedb/eslint-config-inlinedb#master",
     "express": "4.16.2",
     "inlinedb": "2.0.5",
     "nodemon": "1.12.1",
@@ -19,7 +21,11 @@
   },
   "scripts": {
     "clean": "node examples/initialize",
+    "eslint": "eslint . --ignore-path .gitignore",
     "start:express": "nodemon examples/express.js",
     "start:node": "nodemon examples/node.js"
+  },
+  "dependencies": {
+    "http-status-codes": "1.3.0"
   }
 }
