@@ -1,36 +1,38 @@
 const InlineDB = require('inlinedb');
+const {Responder} = require('./src/responder');
+const errors = require('./src/errors');
+const {parseUrl} = require('./src/utils');
+
+const IDB_OP = '/idb/database';
+const TABLE_OP = '/idb/table';
 
 class Handler {
 
-  static isIdbQuery(urlParts) {
+  static isIdbQuery(url) {
 
-    const [base, idbName, tableName] = urlParts;
+    const conditions = [
+      url.urlParts.length === 3,
+      url.url === IDB_OP,
+      url.url === TABLE_OP
+    ];
 
-    if (base !== 'idb') {
-      return false;
-    }
-
-    return [
-      urlParts.length === 3,
-      idbName === 'database' && !tableName,
-      idbName === 'table' && !tableName
-    ].some(condition => condition);
+    return url.urlParts[0] === 'idb' && conditions.some(condition => condition);
 
   }
 
   static parseRequest(request) {
 
-    const baseUrl = request.url.split('?')[0];
-    const urlParts = baseUrl.replace(/^\//, '').split('/');
-    const [idbName, tableName] = urlParts.slice(1, 3);
+    const url = parseUrl(request.url);
+    const [idbName, tableName] = url.urlParts.slice(1, 3);
 
     return {
       idbName,
-      isIdbQuery: Handler.isIdbQuery(urlParts),
+      isIdbQuery: Handler.isIdbQuery(url),
       method: request.method,
+      originalRequest: request,
+      query: url.query,
       tableName,
-      query: request.query,
-      originalRequest: request
+      url: url.url
     };
 
   }
@@ -60,9 +62,47 @@ class Handler {
 
   }
 
+  handleDatabaseOperation(request, response) {
+
+    return new Promise((resolve, reject) => {
+      if (request.url === IDB_OP) {
+        const idbName = request.query.get('name');
+
+        if (!idbName) {
+          return response.fail(errors.IDB_NAME_NOT_PROVIDED, 400, resolve);
+        }
+
+        if (request.method === 'POST') {
+          if (this.options.allowDatabaseCreation) {
+            new InlineDB(idbName);
+            return response.pass({}, resolve);
+          } else {
+            return response.fail(errors.IDB_CREATION_DISALLOWED, 405, resolve);
+          }
+        }
+
+        if (request.method === 'DELETE') {
+          if (this.options.allowDatabaseDeletion) {
+            new InlineDB(idbName).drop();
+            return response.pass({}, resolve);
+          } else {
+            return response.fail(errors.IDB_DELETION_DISALLOWED, 405, resolve);
+          }
+        }
+
+        return response.fail('', 400, resolve);
+      }
+      return reject();
+    });
+
+  }
+
   handleRequest(request, response) {
 
-    response.end('handling ' + request.url);
+    const responder = new Responder(response);
+
+    this.handleDatabaseOperation(request, responder)
+      .catch(() => responder.fail(errors.UNKNOWN_ERROR, 500, () => {}));
 
   };
 
