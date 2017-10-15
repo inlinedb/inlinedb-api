@@ -2,9 +2,12 @@
   "name": "inlinedb-api",
   "version": "0.0.0",
   "description": "InlineDB REST API",
-  "repository": "inlinedb/inlinedb-web",
+  "repository": "inlinedb/inlinedb-api",
   "author": "Gopikrishna Sathyamurthy",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/inlinedb/inlinedb-api/issues"
+  },
   "peerDependencies": {
     "inlinedb": "2.x"
   },
