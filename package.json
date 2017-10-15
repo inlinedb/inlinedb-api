@@ -16,7 +16,7 @@
   },
   "scripts": {
     "clean": "node examples/initialize",
-    "start:express": "nodemon examples/express.js --watch index.js --watch examples",
-    "start:node": "nodemon examples/node.js --watch index.js --watch examples"
+    "start:express": "nodemon examples/express.js",
+    "start:node": "nodemon examples/node.js"
   }
 }
