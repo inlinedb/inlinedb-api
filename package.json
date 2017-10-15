@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "eslint": "4.9.0",
-    "eslint-config-inlinedb": "github:inlinedb/eslint-config-inlinedb#master",
+    "eslint-config-inlinedb": "github:inlinedb/eslint-config-inlinedb#67b8985fc43e9047db454197743111387ceeea85",
     "express": "4.16.2",
     "inlinedb": "2.0.5",
     "nodemon": "1.12.1",
