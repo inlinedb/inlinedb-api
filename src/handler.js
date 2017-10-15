@@ -1,11 +1,7 @@
-const {Controller} = require('./controller');
-const InlineDB = require('inlinedb');
+const {IDB_OP, TABLE_OP} = require('./constants');
 const {Responder} = require('./responder');
-const errors = require('./errors');
 const {parseUrl} = require('./utils');
-
-const IDB_OP = '/idb/database';
-const TABLE_OP = '/idb/table';
+const databaseController = require('./controllers/database');
 
 class Handler {
 
@@ -38,17 +34,6 @@ class Handler {
 
   }
 
-  constructor(options) {
-
-    this.options = Object.assign({
-      allowDatabaseCreation: false,
-      allowDatabaseDeletion: false,
-      allowTableCreation: false,
-      allowTableDeletion: false
-    }, options);
-
-  }
-
   get handler() {
 
     return (request, response, next) => {
@@ -63,35 +48,22 @@ class Handler {
 
   }
 
-  handleDatabaseOperation(request, response) {
+  constructor(options) {
 
-    const methods = {
-      post: done => {
-        if (this.options.allowDatabaseCreation) {
-          new InlineDB(idbName);
-          return response.pass({}, done);
-        } else {
-          return response.fail(errors.IDB_CREATION_DISALLOWED, 405, done);
-        }
-      },
-      delete: done => {
-        if (this.options.allowDatabaseDeletion) {
-          new InlineDB(idbName).drop();
-          return response.pass({}, done);
-        } else {
-          return response.fail(errors.IDB_DELETION_DISALLOWED, 405, done);
-        }
-      }
-    };
-    const preConditions = [
-      {
-        condition: () => !request.query.get('name'),
-        message: errors.IDB_NAME_NOT_PROVIDED
-      }
-    ];
-    const stepInCondition = () => request.url === IDB_OP;
+    this.options = Object.assign({
+      allowDatabaseCreation: false,
+      allowDatabaseDeletion: false,
+      allowTableCreation: false,
+      allowTableDeletion: false
+    }, options);
 
-    return new Controller(methods, preConditions).handle(request, response, stepInCondition);
+    this.defineControllers();
+
+  }
+
+  defineControllers() {
+
+    this.databaseController = databaseController(this.options);
 
   }
 
@@ -99,7 +71,7 @@ class Handler {
 
     const responder = new Responder(response);
 
-    this.handleDatabaseOperation(request, responder)
+    this.databaseController.handle(request, responder)
       .catch(error => responder.fail(String(error), 500, () => {}));
 
   };

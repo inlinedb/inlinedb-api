@@ -1,17 +1,22 @@
+const {defineCaller} = require('./utils');
+
 const alwaysTrue = () => true;
 
 class Controller {
 
-  constructor(methods, preConditions) {
+  constructor(methods, preConditions, stepInCondition = alwaysTrue) {
     this.methods = methods;
     this.preConditions = preConditions;
+    this.stepInCondition = stepInCondition;
   }
 
-  handle(request, response, stepInCondition = alwaysTrue) {
+  handle(request, response) {
+    const call = defineCaller(request, response);
+
     return new Promise((resolve, reject) => {
-      if (stepInCondition()) {
+      if (call(this.stepInCondition)) {
         const preConditionMessage = this.preConditions.reduce(
-          (message, condition) => !message && condition.condition() ? condition.message : message,
+          (message, condition) => !message && call(condition.condition) ? condition.message : message,
           null
         );
 
@@ -22,7 +27,7 @@ class Controller {
         const handler = this.methods[request.method.toLowerCase()];
 
         if (handler) {
-          return handler(err => (err ? reject : resolve)());
+          return call(handler, err => (err ? reject : resolve)());
         } else {
           return response.fail('', 400, resolve);
         }

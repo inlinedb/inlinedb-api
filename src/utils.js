@@ -1,5 +1,7 @@
 const urlParser = require('url');
 
+const defineCaller = (request, response) => (callback, ...params) => callback(request, response, ...params);
+
 const parseUrl = url => {
 
   const parsed = urlParser.parse(url);
@@ -13,5 +15,6 @@ const parseUrl = url => {
 };
 
 module.exports = {
+  defineCaller,
   parseUrl
 };
