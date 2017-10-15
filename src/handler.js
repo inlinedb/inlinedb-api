@@ -1,3 +1,4 @@
+const {Controller} = require('./controller');
 const InlineDB = require('inlinedb');
 const {Responder} = require('./responder');
 const errors = require('./errors');
@@ -64,36 +65,33 @@ class Handler {
 
   handleDatabaseOperation(request, response) {
 
-    return new Promise((resolve, reject) => {
-      if (request.url === IDB_OP) {
-        const idbName = request.query.get('name');
-
-        if (!idbName) {
-          return response.fail(errors.IDB_NAME_NOT_PROVIDED, 400, resolve);
+    const methods = {
+      post: done => {
+        if (this.options.allowDatabaseCreation) {
+          new InlineDB(idbName);
+          return response.pass({}, done);
+        } else {
+          return response.fail(errors.IDB_CREATION_DISALLOWED, 405, done);
         }
-
-        if (request.method === 'POST') {
-          if (this.options.allowDatabaseCreation) {
-            new InlineDB(idbName);
-            return response.pass({}, resolve);
-          } else {
-            return response.fail(errors.IDB_CREATION_DISALLOWED, 405, resolve);
-          }
+      },
+      delete: done => {
+        if (this.options.allowDatabaseDeletion) {
+          new InlineDB(idbName).drop();
+          return response.pass({}, done);
+        } else {
+          return response.fail(errors.IDB_DELETION_DISALLOWED, 405, done);
         }
-
-        if (request.method === 'DELETE') {
-          if (this.options.allowDatabaseDeletion) {
-            new InlineDB(idbName).drop();
-            return response.pass({}, resolve);
-          } else {
-            return response.fail(errors.IDB_DELETION_DISALLOWED, 405, resolve);
-          }
-        }
-
-        return response.fail('', 400, resolve);
       }
-      return reject();
-    });
+    };
+    const preConditions = [
+      {
+        condition: () => !request.query.get('name'),
+        message: errors.IDB_NAME_NOT_PROVIDED
+      }
+    ];
+    const stepInCondition = () => request.url === IDB_OP;
+
+    return new Controller(methods, preConditions).handle(request, response, stepInCondition);
 
   }
 
@@ -102,7 +100,7 @@ class Handler {
     const responder = new Responder(response);
 
     this.handleDatabaseOperation(request, responder)
-      .catch(() => responder.fail(errors.UNKNOWN_ERROR, 500, () => {}));
+      .catch(error => responder.fail(String(error), 500, () => {}));
 
   };
 
