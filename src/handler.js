@@ -2,6 +2,7 @@ const {IDB_OP, TABLE_OP} = require('./constants');
 const {Responder} = require('./responder');
 const {parseUrl} = require('./utils');
 const databaseController = require('./controllers/database');
+const status = require('http-status-codes');
 
 class Handler {
 
@@ -37,13 +38,17 @@ class Handler {
   get handler() {
 
     return (request, response, next) => {
+
       const parsedRequest = Handler.parseRequest(request);
 
       if (parsedRequest.isIdbQuery) {
-        this.handleRequest(parsedRequest, response);
-      } else {
-        next();
+
+        return this.handleRequest(parsedRequest, response);
+
       }
+
+      return next();
+
     };
 
   }
@@ -72,9 +77,9 @@ class Handler {
     const responder = new Responder(response);
 
     this.databaseController.handle(request, responder)
-      .catch(error => responder.fail(String(error), 500, () => {}));
+      .catch(error => responder.fail(String(error), status.INTERNAL_SERVER_ERROR, () => {}));
 
-  };
+  }
 
 }
 

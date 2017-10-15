@@ -4,6 +4,8 @@ const {restHandler} = require('./rest-handler');
 
 const api = idbApi();
 
+const PORT = 8080;
+
 const server = http.createServer((request, response) => api(request, response, () => restHandler(request, response)));
 
-server.listen(8080);
+server.listen(PORT);
